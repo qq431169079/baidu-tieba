@@ -7,38 +7,36 @@ import setting
 import time
 import rsa
 import base64
+from .url import URL
 
 
 
 
-
-class Loging(object):
+class Login(URL):
 '''
     该类为百度贴吧的登录类
 '''
-    _gid = None
-    _callback = None
-    _session = requests.Session()
+
+    
     def __init__(self):
+        self._session = requests.Session()
         self._token = None
         self._inittime = ""
         self._gid = self.gid
+        self._callback = self.callback
         self.headers = {
                     'User-Agent': setting.agent,
                     "Host": "passport.baidu.com",
                     "Referer": "https://www.baidu.com/"
             }
   
-    def get_token(self):
-        if self._token:
+    def get_token(self, flag = True):
+        if self._token and flag:
             return self._token
         
         token_callback = self.callback
         self._inittime = str(int(time.time() * 1000))
-        token_url = "https://passport.baidu.com/v2/api/?getapi&tpl=pp&apiver=v3&tt="
-        token_url = token_url + init_time + "&class=login&gid="
-        token_url = token_url + self._gid + "&logintype=basicLogin&callback="
-        token_url = token_url + self.callback
+        token_url = Login.token_url(self._inittime, self._gid, self._callback)
         # token_params = {
         #     "getapi": "",
         #     "tpl": "pp",
@@ -57,15 +55,8 @@ class Loging(object):
         except:
             return None
         
-        pass
-    def get_pubkey(self):
-        publickey_callback = self.callback
-        publickey_url = "https://passport.baidu.com/v2/getpublickey?token="
-        publickey_url = publickey_url + token + "&tpl=pp&apiver=v3&tt="
-        publickey_url = publickey_url + str(int(time.time() * 1000)) + "&gid="
-        publickey_url = publickey_url + self._gid + "&callback="
-        publickey_url = publickey_url + publickey_callback
-        # print(publickey_url)
+    def get_pubkey(self,token, tt, gid, callback):
+        pubkeyurl = Login.pubkey_url(token, tt, gid, callback)
         try:
             self.headers["Referer"] = "https://passport.baidu.com/v2/?login"
             publickey_html = session.get(publickey_url, headers=self.headers)
